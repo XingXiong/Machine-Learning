@@ -1,0 +1,31 @@
+SAheart <- read.csv("SAheart.data")
+indictormatrix <- matrix(runif(924,0,0),nrow=462,ncol=2)
+for (i in 1:462){
+if (SAheart[i,11]==0){
+indictormatrix[i,1]=1}else{
+indictormatrix[i,2]=1}}
+X <- SAheart[,1:10]
+X <- X[,-6]
+X <- as.matrix(X)
+X <- X[,-1]
+TX <- t(X)
+productX <- TX %*% X
+inverseproductX <- solve(productX)
+Yhat = X %*% inverseproductX %*% TX %*% indictormatrix
+library(MASS)
+lda.fit1 = lda(chd~sbp+tobacco+ldl+adiposity+typea+obesity+alcohol+age, data=SAheart)
+coef(lda.fit1)
+Ydf <- data.frame(Yhat)
+Ydf$Y <- SAheart$chd
+lda.fit2 = lda(Y~X1 + X2, data=Ydf)
+ summary(lda.fit2)
+
+
+SAheart<-SAheart[,-6]
+SAheart<-SAheart[,-1]
+ldaRes = predict(lda.fit1, SAheart) 
+table(SAheart$chd, ldaRes$class)
+
+ldaRes1 = predict(lda.fit2, Ydf)
+table(Ydf$Y, ldaRes1$class)
+table(ldaRes1$class,ldaRes$class)
